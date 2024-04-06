@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vchat-service
+spec:
+#  控制pod数量，三个副本
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vchat
+  template:
+    metadata:
+      labels:
+#        要和上面的    matchLabels 匹配
+        app: vchat
+#    deployment 管理的模板
+    spec:
+#     pod里面运行的所有container，一般一个pod一个container
+      containers:
+        - name: vchat
+          image: ximubuqi/v_chat:v0.0.1
+#          容器内的端口
+          ports:
+            - containerPort: 8081
+
+
+
+

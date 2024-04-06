@@ -20,7 +20,9 @@ func (c *CORS) ServeHTTP() gin.HandlerFunc {
 		//AllowOrigins:     []string{"http://localhost:3000"},
 		AllowCredentials: true,
 
-		AllowHeaders: []string{"Content-Type"},
+		AllowHeaders: []string{"Content-Type", "Authorization"},
+		// 允许前端携带标头返回传给后端
+		ExposeHeaders: []string{"x-jwt-token"},
 		//AllowHeaders: []string{"content-type"},
 		//AllowMethods: []string{"POST"},
 		AllowOriginFunc: func(origin string) bool {

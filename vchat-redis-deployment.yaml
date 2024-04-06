@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vchat-redis
+  labels:
+    app: vchat-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vchat-redis
+  template:
+    metadata:
+      name: vchat-redis
+      labels:
+        app: vchat-redis
+    spec:
+      containers:
+        - name: vchat-redis
+          image: redis:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+      restartPolicy: Always

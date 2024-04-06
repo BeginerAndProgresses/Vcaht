@@ -1,23 +1,11 @@
 # Vcaht
-仿Wchat项目
+## 第三周作业
 
+![image-20240406230140891](README.assets/image-20240406230140891.png)
 
+![image-20240406230418320](README.assets/image-20240406230418320.png)
 
-## 修改信息PostMan
-
-![image-20240403120819282](README.assets/image-20240403120819282.png)
-
-![image-20240403120833561](README.assets/image-20240403120833561.png)
-
-
-
-![image-20240403120857740](README.assets/image-20240403120857740.png)
-
-
-
-
-
-
+![image-20240406230333530](README.assets/image-20240406230333530.png)
 
 
 

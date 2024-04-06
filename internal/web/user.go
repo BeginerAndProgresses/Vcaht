@@ -6,7 +6,10 @@ import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -98,16 +101,21 @@ func (h *UserHandler) Login(c *gin.Context) {
 	u, err := h.svc.Login(c, req.Email, req.Password)
 	switch err {
 	case nil:
-		sess := sessions.Default(c)
-		sess.Set("uid", u.Id)
-		sess.Options(sessions.Options{
-			MaxAge: 60 * 60 * 24,
-		})
-		err = sess.Save()
+		//sess := sessions.Default(c)
+		//sess.Set("uid", u.Id)
+		//sess.Options(sessions.Options{
+		//	MaxAge: 60 * 60 * 24,
+		//})
+		//err = sess.Save()
+		//if err != nil {
+		//	c.String(http.StatusOK, "系统错误")
+		//	return
+		//}
+		ts, err := generateJWT(c, u.Id)
 		if err != nil {
 			c.String(http.StatusOK, "系统错误")
-			return
 		}
+		c.Header("x-jwt-token", ts)
 		c.String(http.StatusOK, "登录成功")
 	case service.ErrUserNotFound:
 		c.String(http.StatusOK, "用户不存在")
@@ -162,9 +170,9 @@ func (h *UserHandler) Edit(c *gin.Context) {
 		c.String(http.StatusOK, "生日格式错误")
 		return
 	}
-	uid := h.getUidFromSession(c)
+	uid := h.getUidFromJWT(c)
 	if uid == -1 {
-		c.String(http.StatusOK, "系统错误")
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	err = h.svc.Edit(c, &domain.UserDomain{Id: uid,
@@ -179,9 +187,9 @@ func (h *UserHandler) Edit(c *gin.Context) {
 }
 
 func (h *UserHandler) Profile(c *gin.Context) {
-	uid := h.getUidFromSession(c)
+	uid := h.getUidFromJWT(c)
 	if uid == -1 {
-		c.String(http.StatusOK, "系统错误")
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	ud, err := h.svc.Profile(c, uid)
@@ -203,4 +211,47 @@ func (h *UserHandler) getUidFromSession(c *gin.Context) int64 {
 		return -1
 	}
 	return uid
+}
+
+var JWTKey = []byte("k6CswdUm77WKcbM68UQUuxVsHSpTCwgK")
+
+type UserClaims struct {
+	jwt.RegisteredClaims
+	Uid       int64
+	UserAgent string
+}
+
+func generateJWT(c *gin.Context, uid int64) (string, error) {
+	uc := UserClaims{
+		Uid:       uid,
+		UserAgent: c.GetHeader("User-Agent"),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, uc)
+	return token.SignedString(JWTKey)
+}
+
+func (h *UserHandler) getUidFromJWT(c *gin.Context) int64 {
+	authString := c.GetHeader("Authorization")
+	if authString == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return -1
+	}
+	authSplit := strings.Split(authString, " ")
+	if len(authSplit) != 2 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return -1
+	}
+	tokenStr := authSplit[1]
+	var uc UserClaims
+	_, err := jwt.ParseWithClaims(tokenStr, &uc, func(token *jwt.Token) (interface{}, error) {
+		return JWTKey, nil
+	})
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return -1
+	}
+	return uc.Uid
 }

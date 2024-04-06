@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vchat-mysql-service
+spec:
+  #  控制pod数量，三个副本
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vchat-mysql
+  template:
+    metadata:
+      name: vchat-mysql
+      labels:
+        #        要和上面的    matchLabels 匹配
+        app: vchat-mysql
+    #    deployment 管理的模板
+    spec:
+      #     pod里面运行的所有container，一般一个pod一个container
+      containers:
+        - name: vchat-mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+          #          容器内的端口
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-storage
+      restartPolicy: Always
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+#            PVC persistent volume claim
+            claimName: vchat-mysql-pvc
+
+
+

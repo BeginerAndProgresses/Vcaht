@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vchat-mysql
+spec:
+  selector:
+    app: vchat-mysql
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3308
+      targetPort: 3306
+  type: LoadBalancer

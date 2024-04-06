@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vchat-redis
+spec:
+  selector:
+    app: vchat-redis
+  ports:
+    - protocol: TCP
+#      k8s访问端口
+      port: 6380
+#      外部访问端口 必须在30000-32767
+      nodePort: 31379
+#      pod暴露端口
+      targetPort: 6379
+  type: NodePort
