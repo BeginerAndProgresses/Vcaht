@@ -4,9 +4,9 @@ package config
 
 var Config = config{
 	DB: DBConfig{
-		DSN: "root:root@tcp(vchat-mysql:3308)/v_chat",
+		DSN: "root:root@tcp(vchat-mysql:13316)/v_chat",
 	},
 	Redis: RedisConfig{
-		Addr: "vchat-redis:6380",
+		Addr: "vchat-redis:6379",
 	},
 }

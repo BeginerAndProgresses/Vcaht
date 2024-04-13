@@ -14,12 +14,16 @@ import (
 type LoginJWTMiddleWear struct {
 }
 
+func NewLoginJWTMiddleWear() *LoginJWTMiddleWear {
+	return &LoginJWTMiddleWear{}
+}
+
 func (w *LoginJWTMiddleWear) CheckLogin() gin.HandlerFunc {
 	// 让time.Now()转为可传入Redis的字节串
 	gob.Register(time.Now())
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
-		if path == "/users/signup" || path == "/users/login" {
+		if path == "/users/signup" || path == "/users/login" || path == "/users/login_sms/code/send" || path == "/users/login_sms" {
 			return
 		}
 		authString := c.GetHeader("Authorization")
@@ -46,12 +50,12 @@ func (w *LoginJWTMiddleWear) CheckLogin() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		if uc.UserAgent != c.GetHeader("User-Agent") {
-			// 后期我们讲到了监控告警的时候，这个地方要埋点
-			// 能够进来这个分支的，大概率是攻击者
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
+		//if uc.UserAgent != c.GetHeader("User-Agent") {
+		//	// 后期我们讲到了监控告警的时候，这个地方要埋点
+		//	// 能够进来这个分支的，大概率是攻击者
+		//	c.AbortWithStatus(http.StatusUnauthorized)
+		//	return
+		//}
 		expireTime := uc.ExpiresAt
 		if expireTime.Sub(time.Now()) < time.Minute {
 			uc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Minute * 5))

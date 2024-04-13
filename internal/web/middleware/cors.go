@@ -14,7 +14,7 @@ func NewCORS() *CORS {
 	return &CORS{}
 }
 
-func (c *CORS) ServeHTTP() gin.HandlerFunc {
+func (c *CORS) CORSService() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		//AllowAllOrigins: true,
 		//AllowOrigins:     []string{"http://localhost:3000"},

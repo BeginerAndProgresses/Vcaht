@@ -15,5 +15,5 @@ spec:
              service:
                 name: vchat
                 port:
-                  number: 80
+                  number: 8081
             path: /
