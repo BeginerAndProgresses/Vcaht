@@ -70,3 +70,7 @@ func (c *MapCache) Del(key string) error {
 	delete(c.data, key)
 	return nil
 }
+
+func (c *MapCache) SetExAt(exAt time.Time) {
+	ExTimeout = exAt
+}

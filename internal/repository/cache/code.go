@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"time"
 )
 
 var (
@@ -74,6 +75,7 @@ func NewLocalCodeCache(mc *MapCache) CodeCache {
 
 func (l *localCodeCache) Set(ctx context.Context, biz, phone, code string) error {
 	err := l.mc.Set(l.key(biz, phone), code)
+	l.mc.SetExAt(time.Now().Add(time.Minute * 15))
 	if err != nil {
 		return ErrMyCacheIsNil
 	}
